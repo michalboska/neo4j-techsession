@@ -12,6 +12,7 @@
         <module>javaclient</module>
         <module>storedproc</module>
         <module>carouselfraud</module>
+        <module>cleardebt</module>
     </modules>
 
     <properties>
