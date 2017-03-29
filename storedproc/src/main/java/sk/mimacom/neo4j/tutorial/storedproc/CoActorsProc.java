@@ -10,8 +10,8 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -27,21 +27,7 @@ public class CoActorsProc {
 
 	public List<Long> findCoactors(long initialNodeId) {
 		Node initialNode = db.getNodeById(initialNodeId);
-		Preconditions.checkArgument(initialNode.hasLabel(Label.label("Person")), "Can only find coactors of a Person");
-		Stream<Relationship> actedInRelationships = StreamSupport.stream(
-				initialNode.getRelationships(RelationshipType.withName(ACTED_IN),
-						Direction.BOTH).spliterator()
-				, false);
-		return actedInRelationships
-				.flatMap(relationship -> {
-					Node movieNode = relationship.getOtherNode(initialNode);
-					if (!movieNode.hasLabel(Label.label("Movie"))) {
-						//don't include this as it's not a movie
-						return Stream.empty();
-					}
-					return getActorIdsForMovieNode(movieNode, initialNodeId);
-				})
-				.collect(Collectors.toList());
+		return Collections.singletonList(initialNodeId); //TODO: Implement
 	}
 
 	private Stream<Long> getActorIdsForMovieNode(Node movieNode, long excludeActorId) {
@@ -52,13 +38,7 @@ public class CoActorsProc {
 						Direction.BOTH)
 						.spliterator(), false
 		);
-		return relationshipStream
-				.flatMap(relationship -> {
-					Node actorNode = relationship.getOtherNode(movieNode);
-					return actorNode.getId() == excludeActorId
-							? Stream.empty()
-							: Stream.of(actorNode.getId());
-				});
+		return Stream.empty(); //TODO: Implement
 	}
 
 }
