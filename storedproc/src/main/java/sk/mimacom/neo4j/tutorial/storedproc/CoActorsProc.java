@@ -9,9 +9,10 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
+import org.neo4j.procedure.Mode;
+import org.neo4j.procedure.Name;
+import org.neo4j.procedure.Procedure;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -25,7 +26,8 @@ public class CoActorsProc {
 	@Context
 	public Log log;
 
-	public List<Long> findCoactors(long initialNodeId) {
+	@Procedure(name = "tutorial.findCoactors", mode = Mode.READ)
+	public Stream<SearchHit> findCoactors(@Name("initialId") long initialNodeId) {
 		Node initialNode = db.getNodeById(initialNodeId);
 		Preconditions.checkArgument(initialNode.hasLabel(Label.label("Person")), "Can only find coactors of a Person");
 		Stream<Relationship> actedInRelationships = StreamSupport.stream(
@@ -41,7 +43,7 @@ public class CoActorsProc {
 					}
 					return getActorIdsForMovieNode(movieNode, initialNodeId);
 				})
-				.collect(Collectors.toList());
+				.map(SearchHit::new);
 	}
 
 	private Stream<Long> getActorIdsForMovieNode(Node movieNode, long excludeActorId) {
@@ -59,6 +61,14 @@ public class CoActorsProc {
 							? Stream.empty()
 							: Stream.of(actorNode.getId());
 				});
+	}
+
+	public static class SearchHit {
+		public Long nodeId;
+
+		public SearchHit(Long nodeId) {
+			this.nodeId = nodeId;
+		}
 	}
 
 }

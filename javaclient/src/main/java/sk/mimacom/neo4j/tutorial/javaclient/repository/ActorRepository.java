@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ActorRepository extends Neo4jRepository<Actor, Long> {
 
-	@Query("match (actor: Person) where actor.name={name} return actor")
+	@Query("MATCH (actor: Person)-[e]-(m:Movie) WHERE actor.name={name} RETURN actor,e,m")
 	Actor findActorByName(@Param("name") String name);
 
 	@Query("MATCH (actor: Person)-[:ACTED_IN]-(:Movie)-[:ACTED_IN]-(coactor) WHERE actor.name={name} RETURN DISTINCT(coactor)")
